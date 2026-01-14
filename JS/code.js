@@ -28,5 +28,5 @@ db.ref("placements").on("child_added", snap => {
   const data = snap.val();
   const img = new Image();
   img.onload = () => ctx.drawImage(img, data.x, data.y);
-  img.src = "/toolbox/" + data.image;
+  img.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + data.image;
 });

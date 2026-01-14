@@ -35,7 +35,7 @@ function loadImages() {
   const container = document.getElementById("images");
   toolbox.forEach(file => {
     const img = document.createElement("img");
-    img.src = "/toolbox/" + file;
+    img.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + file;
     img.style.width = "120px";
     img.style.cursor = "grab";
     img.onmousedown = e => {
