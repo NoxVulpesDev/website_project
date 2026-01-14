@@ -1,4 +1,5 @@
-// --- Firebase init ---
+
+document.addEventListener("DOMContentLoaded", () => {// --- Firebase init ---
 const firebaseConfig = {
   apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
   authDomain: "twitch-drag-and-drop.firebaseapp.com",
@@ -76,3 +77,4 @@ document.onmouseup = e => {
 };
 
 loadTwitchUser().then(loadImages);
+});// End of DOMContentLoaded listener
