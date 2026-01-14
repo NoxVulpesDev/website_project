@@ -29,7 +29,7 @@ async function loadTwitchUser() {
 }
 
 // --- Load toolbox images ---
-const toolbox = ["cat.png", "dog.png", "heart.png", "star.png"];
+const toolbox = ["cat.gif", "dog.png", "heart.png", "star.png"];
 
 function loadImages() {
   const container = document.getElementById("images");
