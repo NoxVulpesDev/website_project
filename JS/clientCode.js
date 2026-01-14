@@ -21,7 +21,7 @@ let twitchUser = null;
 async function loadTwitchUser() {
   const res = await fetch("https://api.twitch.tv/helix/users", {
     headers: {
-      "Client-ID": "YOUR_CLIENT_ID",
+      "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
       "Authorization": "Bearer " + token
     }
   });
