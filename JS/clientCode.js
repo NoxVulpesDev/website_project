@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {// --- Firebase init ---
 const firebaseConfig = {
   apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
   authDomain: "twitch-drag-and-drop.firebaseapp.com",
+  databaseURL: "https://twitch-drag-and-drop-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "twitch-drag-and-drop",
   storageBucket: "twitch-drag-and-drop.firebasestorage.app",
   messagingSenderId: "649088114441",
