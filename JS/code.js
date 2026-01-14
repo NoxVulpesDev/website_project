@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 // Firebase init
 const firebaseConfig = {
   apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
@@ -30,3 +31,4 @@ db.ref("placements").on("child_added", snap => {
   img.onload = () => ctx.drawImage(img, data.x, data.y);
   img.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + data.image;
 });
+});// End of DOMContentLoaded listener
