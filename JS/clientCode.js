@@ -1,0 +1,78 @@
+// --- Firebase init ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
+  authDomain: "twitch-drag-and-drop.firebaseapp.com",
+  projectId: "twitch-drag-and-drop",
+  storageBucket: "twitch-drag-and-drop.firebasestorage.app",
+  messagingSenderId: "649088114441",
+  appId: "1:649088114441:web:7b64f8490828c4931cfdd8",
+  measurementId: "G-T51KFPCL3T"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// --- Twitch token extraction ---
+const hash = window.location.hash;
+const token = new URLSearchParams(hash.substring(1)).get("access_token");
+let twitchUser = null;
+
+async function loadTwitchUser() {
+  const res = await fetch("https://api.twitch.tv/helix/users", {
+    headers: {
+      "Client-ID": "YOUR_CLIENT_ID",
+      "Authorization": "Bearer " + token
+    }
+  });
+  const data = await res.json();
+  twitchUser = data.data[0];
+}
+
+// --- Load toolbox images ---
+const toolbox = ["cat.png", "dog.png", "heart.png", "star.png"];
+
+function loadImages() {
+  const container = document.getElementById("images");
+  toolbox.forEach(file => {
+    const img = document.createElement("img");
+    img.src = "/toolbox/" + file;
+    img.style.width = "120px";
+    img.style.cursor = "grab";
+    img.onmousedown = e => {
+      selectedFile = file;
+      dragImg.src = img.src;
+      dragImg.style.display = "block";
+      dragImg.style.left = e.pageX + "px";
+      dragImg.style.top = e.pageY + "px";
+    };
+    container.appendChild(img);
+  });
+}
+
+// --- Drag logic ---
+let selectedFile = null;
+const dragImg = document.getElementById("dragImg");
+
+document.onmousemove = e => {
+  if (dragImg.style.display === "block") {
+    dragImg.style.left = e.pageX + "px";
+    dragImg.style.top = e.pageY + "px";
+  }
+};
+
+document.onmouseup = e => {
+  if (!selectedFile || !twitchUser) return;
+  const x = e.pageX;
+  const y = e.pageY;
+  firebase.database().ref("placements").push({
+    image: selectedFile,
+    x,
+    y,
+    user: twitchUser.display_name,
+    timestamp: Date.now()
+  });
+  dragImg.style.display = "none";
+  selectedFile = null;
+};
+
+loadTwitchUser().then(loadImages);
