@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el.style.position = "absolute";
     el.style.left = data.x + "px";
     el.style.top = data.y + "px";
+    el.id = snap.key;
     previewLayer.appendChild(el);
   });
 
