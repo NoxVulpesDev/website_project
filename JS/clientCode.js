@@ -93,30 +93,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- Drag logic ---
-  let selectedFile = null;
-  const dragImg = document.getElementById("dragImg");
 
-  document.onmousemove = e => {
-    if (dragImg.style.display === "block") {
-      dragImg.style.left = e.pageX + "px";
-      dragImg.style.top = e.pageY + "px";
-    }
-  };
+  let selectedImage = null;
 
-  document.onmouseup = e => {
-    if (!selectedFile || !twitchUser) return;
-    const x = e.pageX;
-    const y = e.pageY;
-    firebase.database().ref("placements").push({
-      image: selectedFile,
-      x,
-      y,
+  function selectImage(filename) {
+    selectedImage = filename;
+    const preview = document.getElementById("preview");
+    preview.src = "./toolbox/" + filename;
+    preview.style.display = "block";
+  }
+
+  document.addEventListener("click", e => {
+    // Ignore clicks inside the toolbox
+    const tool = document.getElementById("toolWindow");
+    if (tool.contains(e.target)) return;
+    if (!selectedImage || !twitchUser) return;
+    db.ref("placements").push({
+      image: selectedImage,
+      x: e.pageX,
+      y: e.pageY,
       user: twitchUser.display_name,
       timestamp: Date.now()
     });
-    dragImg.style.display = "none";
-    selectedFile = null;
-  };
+    // Hide preview after placing
+    const preview = document.getElementById("preview");
+    preview.style.display = "none";
+    selectedImage = null;
+  });
 
   loadTwitchUser().then(loadImages);
 
