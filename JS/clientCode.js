@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     appId: "1:649088114441:web:7b64f8490828c4931cfdd8",
     measurementId: "G-T51KFPCL3T"
   };
-
+  const baseURL = "https://noxvulpesdev.github.io/website_project/toolbox/";
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
