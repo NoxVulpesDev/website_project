@@ -1,0 +1,76 @@
+/* --- GLOBAL --- */
+body {
+  margin: 0;
+  padding: 0;
+  background: #0e0e10; /* Twitch dark */
+  color: #efeff1;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+/* --- TOOL WINDOW --- */
+#toolWindow {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 280px;
+  height: 80vh;
+  background: #18181b;
+  border: 2px solid #9146ff; /* Twitch purple */
+  border-radius: 12px;
+  padding: 15px;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(145, 70, 255, 0.3);
+}
+
+#toolWindow h2 {
+  margin-top: 0;
+  font-size: 18px;
+  text-align: center;
+  color: #9146ff;
+  letter-spacing: 1px;
+}
+
+/* --- THUMBNAILS --- */
+#toolWindow img {
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid #2c2c2f;
+}
+
+#toolWindow img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(145, 70, 255, 0.4);
+}
+
+/* --- BUTTONS --- */
+button {
+  width: 100%;
+  padding: 12px 18px;
+  margin: 10px 0;
+  background: #9146ff;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  background: #a56bff;
+  box-shadow: 0 0 12px rgba(145, 70, 255, 0.4);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* --- PLACED IMAGES ON CLIENT PAGE --- */
+.placed-image {
+  position: absolute;
+  pointer-events: none;
+}

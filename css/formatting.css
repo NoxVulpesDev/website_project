@@ -1,5 +1,16 @@
-#IntCanvas{
-    height: 100%;
-    width: 80%;
-    border: 1px solid black;
+/* --- OVERLAY BORDER --- */
+body {
+  margin: 0;
+  padding: 0;
+  border: 20px solid rgba(145, 70, 255, 0.7); 
+  box-shadow: inset 0 0 40px rgba(145, 70, 255, 0.5);
+  box-sizing: border-box;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* --- PLACED IMAGES --- */
+.placed-image {
+  position: absolute;
+  pointer-events: none;
 }
