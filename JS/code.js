@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const img = document.createElement("img");
     img.id = id;
     img.src = "toolbox/" + data.image;
+    img.style.position = "absolute";
     img.style.left = data.x + "px";
     img.style.top = data.y + "px";
     img.className = "placed-image";
