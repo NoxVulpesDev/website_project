@@ -72,9 +72,23 @@ document.addEventListener("DOMContentLoaded", () => {
     el.style.position = "absolute";
     el.style.left = data.x + "px";
     el.style.top = data.y + "px";
-    el.style.width = "120px";
-    el.style.pointerEvents = "none";
     previewLayer.appendChild(el);
+  });
+
+  db.ref("placements").on("child_changed", snapshot => {
+    const data = snapshot.val();
+    const id = snapshot.key;
+    const img = document.getElementById(id);
+    if (img) {
+      img.style.left = data.x + "px";
+      img.style.top = data.y + "px";
+    }
+  });
+
+  db.ref("placements").on("child_removed", snapshot => {
+    const id = snapshot.key;
+    const img = document.getElementById(id);
+    if (img) img.remove();
   });
 
   // --- Drag logic ---
@@ -102,12 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
     dragImg.style.display = "none";
     selectedFile = null;
   };
-
-  db.ref("placements").on("child_removed", snapshot => {
-    const id = snapshot.key;
-    const img = document.getElementById(id);
-    if (img) img.remove();
-  });
 
   loadTwitchUser().then(loadImages);
 
