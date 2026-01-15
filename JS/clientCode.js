@@ -103,14 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTwitchUser().then(loadImages);
 
   async function checkIfFollower(userId) {
-    const res = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${userId}&to_id=${broadcasterId}`, {
+    const res = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${userId}`, {
       headers: {
         "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
         "Authorization": "Bearer " + token
       }
     });
     const data = await res.json();
-    return data.total > 0;
+    return data.data && data.data.length > 0;
   }
 
 }); // End of DOMContentLoaded listener
