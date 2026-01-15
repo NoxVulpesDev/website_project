@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const broadcasterId = "43085790";
   const baseURL = "https://noxvulpesdev.github.io/website_project/toolbox/";
   const toolboxFiles = ["cat.gif", "dog.png", "heart.png", "star.png"];
-  const isStreamer = false; // will be set after auth
 
+  let isStreamer = false; // FIXED
   let twitchUser = null;
   let selectedImage = null;
 
@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .get("access_token");
 
   async function loadTwitchUser() {
-    
     const res = await fetch("https://api.twitch.tv/helix/users", {
       headers: {
         "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
@@ -50,10 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     twitchUser = data.data[0];
 
-    isStreamer = twitchUser.id === broadcasterId;
+    isStreamer = twitchUser.id === broadcasterId; // FIXED
     if (isStreamer) {
       document.getElementById("adminPanel").style.display = "block";
     }
+
     if (!isStreamer) {
       const isSub = await checkIfSubscriber(twitchUser.id);
       if (!isSub) {
@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Access granted:", twitchUser.display_name);
   }
-    
 
   /* ---------------------------------------------------------
    *  SETTING DEFAULTS
@@ -73,28 +72,25 @@ document.addEventListener("DOMContentLoaded", () => {
   async function ensureCooldownDefaults() {
     const cooldownEnabledRef = db.ref("settings/cooldownEnabled");
     const cooldownSecondsRef = db.ref("settings/cooldownSeconds");
+
     const enabledSnap = await cooldownEnabledRef.once("value");
     const secondsSnap = await cooldownSecondsRef.once("value");
-    if (enabledSnap.val() === null) {
-      cooldownEnabledRef.set(false); // default: cooldown off
-    }
-    if (secondsSnap.val() === null) {
-      cooldownSecondsRef.set(10);
-    }
+
+    if (enabledSnap.val() === null) cooldownEnabledRef.set(false);
+    if (secondsSnap.val() === null) cooldownSecondsRef.set(10);
   }
 
   async function ensurePlacementLimitDefaults() {
     const limitEnabledRef = db.ref("settings/limitEnabled");
     const maxPerUserRef = db.ref("settings/maxPerUser");
+
     const limitEnabledSnap = await limitEnabledRef.once("value");
     const maxPerUserSnap = await maxPerUserRef.once("value");
-    if (limitEnabledSnap.val() === null) {
-      limitEnabledRef.set(false); // default: limits off
-    }
-    if (maxPerUserSnap.val() === null) {
-      maxPerUserRef.set(1); // default: 1 placement per user
-    }
+
+    if (limitEnabledSnap.val() === null) limitEnabledRef.set(false);
+    if (maxPerUserSnap.val() === null) maxPerUserRef.set(1);
   }
+
   /* ---------------------------------------------------------
    *  FIREBASE REALTIME LISTENERS
    * --------------------------------------------------------- */
@@ -135,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const img = document.createElement("img");
       img.src = baseURL + file;
       img.className = "toolbox-thumb";
-
       img.addEventListener("click", () => selectImage(file));
       container.appendChild(img);
     });
@@ -164,22 +159,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (toolWindow.contains(e.target)) return;
     if (!selectedImage || !twitchUser) return;
 
-    // --- Cooldown check ---
+    // Cooldown
     const cooldownEnabled = (await db.ref("settings/cooldownEnabled").once("value")).val();
     if (cooldownEnabled) {
       const cooldownSeconds = (await db.ref("settings/cooldownSeconds").once("value")).val() || 10;
       const lastPlacedSnap = await db.ref("lastPlaced/" + twitchUser.display_name).once("value");
       const lastPlaced = lastPlacedSnap.val() || 0;
       const now = Date.now();
+
       if (now - lastPlaced < cooldownSeconds * 1000) {
         console.log("Cooldown active");
-        return; // block placement
+        return;
       }
-      // Update last placed time
+
       db.ref("lastPlaced/" + twitchUser.display_name).set(now);
     }
 
-    // --- Placement limit check ---
+    // Placement limit
     const limitEnabled = (await db.ref("settings/limitEnabled").once("value")).val();
     if (limitEnabled) {
       const maxPerUser = (await db.ref("settings/maxPerUser").once("value")).val() || 1;
@@ -187,14 +183,15 @@ document.addEventListener("DOMContentLoaded", () => {
         .orderByChild("user")
         .equalTo(twitchUser.display_name)
         .once("value");
+
       const count = snap.val() ? Object.keys(snap.val()).length : 0;
       if (count >= maxPerUser) {
         console.log("Placement limit reached");
-        return; // block placement
+        return;
       }
     }
 
-    // --- Place the image ---
+    // Place
     db.ref("placements").push({
       image: selectedImage,
       x: e.pageX,
@@ -260,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("clearAll").addEventListener("click", clearAllItems);
 
   document.getElementById("toggleLimit").addEventListener("change", e => {
-  if (!isStreamer) return;
     if (!isStreamer) return;
     db.ref("settings/limitEnabled").set(e.target.checked);
   });
@@ -272,5 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ensureCooldownDefaults();
     ensurePlacementLimitDefaults();
     loadToolboxImages();
+  });
 
-});
+}); // END DOMContentLoaded
