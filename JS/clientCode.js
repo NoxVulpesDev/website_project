@@ -103,6 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedFile = null;
   };
 
+  db.ref("placements").on("child_removed", snapshot => {
+    const id = snapshot.key;
+    const img = document.getElementById(id);
+    if (img) img.remove();
+  });
+
   loadTwitchUser().then(loadImages);
 
   async function checkIfSubscriber(userId) {
