@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const broadcasterId = "43085790";
   const baseURL = "https://noxvulpesdev.github.io/website_project/toolbox/";
   const toolboxFiles = ["cat.gif", "dog.png", "heart.png", "star.png"];
+  const isStreamer = false; // will be set after auth
 
   let twitchUser = null;
   let selectedImage = null;
@@ -49,9 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     twitchUser = data.data[0];
 
-    const isStreamer = twitchUser.id === broadcasterId;
+    isStreamer = twitchUser.id === broadcasterId;
     if (isStreamer) {
-         document.getElementById("adminPanel").style.display = "block"; 
+      document.getElementById("adminPanel").style.display = "block";
     }
     if (!isStreamer) {
       const isSub = await checkIfSubscriber(twitchUser.id);
@@ -82,19 +83,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function ensurePlacementLimitDefaults() { 
-    const limitEnabledRef = db.ref("settings/limitEnabled"); 
-    const maxPerUserRef = db.ref("settings/maxPerUser"); 
-    const limitEnabledSnap = await limitEnabledRef.once("value"); 
-    const maxPerUserSnap = await maxPerUserRef.once("value"); 
-    if (limitEnabledSnap.val() === null) { 
-        limitEnabledRef.set(false); // default: limits off 
-        } 
-        
-    if (maxPerUserSnap.val() === null) {
-         maxPerUserRef.set(1); // default: 1 placement per user 
-         } 
+  async function ensurePlacementLimitDefaults() {
+    const limitEnabledRef = db.ref("settings/limitEnabled");
+    const maxPerUserRef = db.ref("settings/maxPerUser");
+    const limitEnabledSnap = await limitEnabledRef.once("value");
+    const maxPerUserSnap = await maxPerUserRef.once("value");
+    if (limitEnabledSnap.val() === null) {
+      limitEnabledRef.set(false); // default: limits off
     }
+    if (maxPerUserSnap.val() === null) {
+      maxPerUserRef.set(1); // default: 1 placement per user
+    }
+  }
   /* ---------------------------------------------------------
    *  FIREBASE REALTIME LISTENERS
    * --------------------------------------------------------- */
@@ -261,17 +261,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("toggleLimit").addEventListener("change", e => {
   if (!isStreamer) return;
-  db.ref("settings/limitEnabled").set(e.target.checked);
-});
-
+    if (!isStreamer) return;
+    db.ref("settings/limitEnabled").set(e.target.checked);
+  });
 
   /* ---------------------------------------------------------
    *  INIT FLOW
    * --------------------------------------------------------- */
   loadTwitchUser().then(() => {
-     ensureCooldownDefaults(); 
-     ensurePlacementLimitDefaults(); 
-     loadToolboxImages(); 
-    });
+    ensureCooldownDefaults();
+    ensurePlacementLimitDefaults();
+    loadToolboxImages();
 
 });
