@@ -64,7 +64,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Access granted:", twitchUser.display_name);
   }
+    
 
+  /* ---------------------------------------------------------
+   *  SETTING DEFAULTS
+   * --------------------------------------------------------- */
+  async function ensureCooldownDefaults() {
+    const cooldownEnabledRef = db.ref("settings/cooldownEnabled");
+    const cooldownSecondsRef = db.ref("settings/cooldownSeconds");
+    const enabledSnap = await cooldownEnabledRef.once("value");
+    const secondsSnap = await cooldownSecondsRef.once("value");
+    if (enabledSnap.val() === null) {
+      cooldownEnabledRef.set(false); // default: cooldown off
+    }
+    if (secondsSnap.val() === null) {
+      cooldownSecondsRef.set(10);
+    }
+  }
+
+  async function ensurePlacementLimitDefaults() { 
+    const limitEnabledRef = db.ref("settings/limitEnabled"); 
+    const maxPerUserRef = db.ref("settings/maxPerUser"); 
+    const limitEnabledSnap = await limitEnabledRef.once("value"); 
+    const maxPerUserSnap = await maxPerUserRef.once("value"); 
+    if (limitEnabledSnap.val() === null) { 
+        limitEnabledRef.set(false); // default: limits off 
+        } 
+        
+    if (maxPerUserSnap.val() === null) {
+         maxPerUserRef.set(1); // default: 1 placement per user 
+         } 
+    }
   /* ---------------------------------------------------------
    *  FIREBASE REALTIME LISTENERS
    * --------------------------------------------------------- */
@@ -222,11 +252,26 @@ document.addEventListener("DOMContentLoaded", () => {
     await db.ref("placements").remove();
   }
 
+  document.getElementById("toggleCooldown").addEventListener("change", e => {
+    if (!isStreamer) return;
+    db.ref("settings/cooldownEnabled").set(e.target.checked);
+  });
+
   document.getElementById("clearAll").addEventListener("click", clearAllItems);
+
+  document.getElementById("toggleLimit").addEventListener("change", e => {
+  if (!isStreamer) return;
+  db.ref("settings/limitEnabled").set(e.target.checked);
+});
+
 
   /* ---------------------------------------------------------
    *  INIT FLOW
    * --------------------------------------------------------- */
-  loadTwitchUser().then(loadToolboxImages);
+  loadTwitchUser().then(() => {
+     ensureCooldownDefaults(); 
+     ensurePlacementLimitDefaults(); 
+     loadToolboxImages(); 
+    });
 
 });
