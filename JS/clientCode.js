@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .get("access_token");
 
   async function loadTwitchUser() {
+    
     const res = await fetch("https://api.twitch.tv/helix/users", {
       headers: {
         "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
@@ -49,6 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     twitchUser = data.data[0];
 
     const isStreamer = twitchUser.id === broadcasterId;
+    if (isStreamer) {
+         document.getElementById("adminPanel").style.display = "block"; 
+    }
     if (!isStreamer) {
       const isSub = await checkIfSubscriber(twitchUser.id);
       if (!isSub) {
@@ -126,10 +130,41 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------------------------------------
    *  CLICK-TO-PLACE LOGIC
    * --------------------------------------------------------- */
-  document.addEventListener("click", e => {
+  document.addEventListener("click", async e => {
     if (toolWindow.contains(e.target)) return;
     if (!selectedImage || !twitchUser) return;
 
+    // --- Cooldown check ---
+    const cooldownEnabled = (await db.ref("settings/cooldownEnabled").once("value")).val();
+    if (cooldownEnabled) {
+      const cooldownSeconds = (await db.ref("settings/cooldownSeconds").once("value")).val() || 10;
+      const lastPlacedSnap = await db.ref("lastPlaced/" + twitchUser.display_name).once("value");
+      const lastPlaced = lastPlacedSnap.val() || 0;
+      const now = Date.now();
+      if (now - lastPlaced < cooldownSeconds * 1000) {
+        console.log("Cooldown active");
+        return; // block placement
+      }
+      // Update last placed time
+      db.ref("lastPlaced/" + twitchUser.display_name).set(now);
+    }
+
+    // --- Placement limit check ---
+    const limitEnabled = (await db.ref("settings/limitEnabled").once("value")).val();
+    if (limitEnabled) {
+      const maxPerUser = (await db.ref("settings/maxPerUser").once("value")).val() || 1;
+      const snap = await db.ref("placements")
+        .orderByChild("user")
+        .equalTo(twitchUser.display_name)
+        .once("value");
+      const count = snap.val() ? Object.keys(snap.val()).length : 0;
+      if (count >= maxPerUser) {
+        console.log("Placement limit reached");
+        return; // block placement
+      }
+    }
+
+    // --- Place the image ---
     db.ref("placements").push({
       image: selectedImage,
       x: e.pageX,
@@ -179,6 +214,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("clearMine").addEventListener("click", clearMyItems);
+
+  /* ---------------------------------------------------------
+   *  ADMIN FUNCTIONS
+   * --------------------------------------------------------- */
+  async function clearAllItems() {
+    await db.ref("placements").remove();
+  }
+
+  document.getElementById("clearAll").addEventListener("click", clearAllItems);
 
   /* ---------------------------------------------------------
    *  INIT FLOW
