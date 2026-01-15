@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function selectImage(filename) {
     selectedImage = filename;
     const preview = document.getElementById("preview");
-    preview.src = "./toolbox/" + filename;
+    preview.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + filename;
     preview.style.display = "block";
   }
 
