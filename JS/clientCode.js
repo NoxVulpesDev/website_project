@@ -29,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const data = await res.json();
     twitchUser = data.data[0];
+    console.log("Logged in as:", twitchUser);
+
   }
 
   // --- Load toolbox images ---
