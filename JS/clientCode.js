@@ -1,56 +1,69 @@
 
-document.addEventListener("DOMContentLoaded", () => {// --- Firebase init ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
-  authDomain: "twitch-drag-and-drop.firebaseapp.com",
-  databaseURL: "https://twitch-drag-and-drop-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "twitch-drag-and-drop",
-  storageBucket: "twitch-drag-and-drop.firebasestorage.app",
-  messagingSenderId: "649088114441",
-  appId: "1:649088114441:web:7b64f8490828c4931cfdd8",
-  measurementId: "G-T51KFPCL3T"
-};
+document.addEventListener("DOMContentLoaded", () => {
+  // --- Firebase init ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
+    authDomain: "twitch-drag-and-drop.firebaseapp.com",
+    databaseURL: "https://twitch-drag-and-drop-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "twitch-drag-and-drop",
+    storageBucket: "twitch-drag-and-drop.firebasestorage.app",
+    messagingSenderId: "649088114441",
+    appId: "1:649088114441:web:7b64f8490828c4931cfdd8",
+    measurementId: "G-T51KFPCL3T"
+  };
 
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-// --- Twitch token extraction ---
-const hash = window.location.hash;
-const token = new URLSearchParams(hash.substring(1)).get("access_token");
-let twitchUser = null;
+  // --- Twitch token extraction ---
+  const hash = window.location.hash;
+  const token = new URLSearchParams(hash.substring(1)).get("access_token");
+  let twitchUser = null;
 
-async function loadTwitchUser() {
-  const res = await fetch("https://api.twitch.tv/helix/users", {
-    headers: {
-      "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
-      "Authorization": "Bearer " + token
-    }
+  async function loadTwitchUser() {
+    const res = await fetch("https://api.twitch.tv/helix/users", {
+      headers: {
+        "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
+        "Authorization": "Bearer " + token
+      }
+    });
+    const data = await res.json();
+    twitchUser = data.data[0];
+  }
+
+  // --- Load toolbox images ---
+  const toolbox = ["cat.gif", "dog.png", "heart.png", "star.png"];
+
+  function loadImages() {
+    const container = document.getElementById("images");
+    toolbox.forEach(file => {
+      const img = document.createElement("img");
+      img.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + file;
+      img.style.width = "120px";
+      img.style.cursor = "grab";
+      img.onmousedown = e => {
+        selectedFile = file;
+        dragImg.src = img.src;
+        dragImg.style.display = "block";
+        dragImg.style.left = e.pageX + "px";
+        dragImg.style.top = e.pageY + "px";
+      };
+      container.appendChild(img);
+    });
+  }
+
+  const previewLayer = document.getElementById("preview-layer");
+  db.ref("placements").on("child_added", snap => {
+    const data = snap.val();
+    const el = document.createElement("img");
+    el.src = baseURL + data.image;
+    el.style.position = "absolute";
+    el.style.left = data.x + "px";
+    el.style.top = data.y + "px";
+    el.style.width = "120px";
+    el.style.pointerEvents = "none";
+    previewLayer.appendChild(el);
   });
-  const data = await res.json();
-  twitchUser = data.data[0];
-}
-
-// --- Load toolbox images ---
-const toolbox = ["cat.gif", "dog.png", "heart.png", "star.png"];
-
-function loadImages() {
-  const container = document.getElementById("images");
-  toolbox.forEach(file => {
-    const img = document.createElement("img");
-    img.src = "https://noxvulpesdev.github.io/website_project/toolbox/" + file;
-    img.style.width = "120px";
-    img.style.cursor = "grab";
-    img.onmousedown = e => {
-      selectedFile = file;
-      dragImg.src = img.src;
-      dragImg.style.display = "block";
-      dragImg.style.left = e.pageX + "px";
-      dragImg.style.top = e.pageY + "px";
-    };
-    container.appendChild(img);
-  });
-}
-
 // --- Drag logic ---
 let selectedFile = null;
 const dragImg = document.getElementById("dragImg");

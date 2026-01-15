@@ -28,5 +28,17 @@
         <h2>Select and place an image</h2> 
         <div id="images" style="display:flex;gap:20px;flex-wrap:wrap;"></div> 
         <img id="dragImg" style="position:absolute;display:none;pointer-events:none;">
+
+        <div id="preview-layer" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            ">
+        </div>
+
     </body>
 </html>
