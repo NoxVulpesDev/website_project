@@ -1,5 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", () => {
+    const broadcasterId = '43085790'; // Example broadcaster ID
   // --- Firebase init ---
   const firebaseConfig = {
     apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
@@ -29,8 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const data = await res.json();
     twitchUser = data.data[0];
-    console.log("Logged in as:", twitchUser);
 
+    const isFollower = await checkIfFollower(twitchUser.id);
+
+    if (!isFollower) {
+        document.getElementById("images").style.display = "none";
+        document.body.innerHTML += "<h2>You must follow the channel to use this feature.</h2>";
+        return;
+    }
   }
 
   // --- Load toolbox images ---
@@ -66,31 +73,44 @@ document.addEventListener("DOMContentLoaded", () => {
     el.style.pointerEvents = "none";
     previewLayer.appendChild(el);
   });
-// --- Drag logic ---
-let selectedFile = null;
-const dragImg = document.getElementById("dragImg");
 
-document.onmousemove = e => {
-  if (dragImg.style.display === "block") {
-    dragImg.style.left = e.pageX + "px";
-    dragImg.style.top = e.pageY + "px";
+  // --- Drag logic ---
+  let selectedFile = null;
+  const dragImg = document.getElementById("dragImg");
+
+  document.onmousemove = e => {
+    if (dragImg.style.display === "block") {
+      dragImg.style.left = e.pageX + "px";
+      dragImg.style.top = e.pageY + "px";
+    }
+  };
+
+  document.onmouseup = e => {
+    if (!selectedFile || !twitchUser) return;
+    const x = e.pageX;
+    const y = e.pageY;
+    firebase.database().ref("placements").push({
+      image: selectedFile,
+      x,
+      y,
+      user: twitchUser.display_name,
+      timestamp: Date.now()
+    });
+    dragImg.style.display = "none";
+    selectedFile = null;
+  };
+
+  loadTwitchUser().then(loadImages);
+
+  async function checkIfFollower(userId) {
+    const res = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${userId}&to_id=${broadcasterId}`, {
+      headers: {
+        "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
+        "Authorization": "Bearer " + token
+      }
+    });
+    const data = await res.json();
+    return data.total > 0;
   }
-};
 
-document.onmouseup = e => {
-  if (!selectedFile || !twitchUser) return;
-  const x = e.pageX;
-  const y = e.pageY;
-  firebase.database().ref("placements").push({
-    image: selectedFile,
-    x,
-    y,
-    user: twitchUser.display_name,
-    timestamp: Date.now()
-  });
-  dragImg.style.display = "none";
-  selectedFile = null;
-};
-
-loadTwitchUser().then(loadImages);
-});// End of DOMContentLoaded listener
+}); // End of DOMContentLoaded listener
