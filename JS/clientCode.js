@@ -1,6 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-    const broadcasterId = '43085790'; // Example broadcaster ID
+  const broadcasterId = '43085790'; // Example broadcaster ID
+
   // --- Firebase init ---
   const firebaseConfig = {
     apiKey: "AIzaSyAol98GRF7IgzzAvKDx9oKcQqCAhuCt0Dc",
@@ -30,14 +31,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const data = await res.json();
     twitchUser = data.data[0];
-
-    const isFollower = await checkIfFollower(twitchUser.id);
-
-    if (!isFollower) {
+    const isStreamer = twitchUser.id === broadcasterId;
+    if (!isStreamer) {
+      const isSub = await checkIfSubscriber(twitchUser.id);
+      if (!isSub) {
         document.getElementById("images").style.display = "none";
-        document.body.innerHTML += "<h2>You must follow the channel to use this feature.</h2>";
+        document.body.innerHTML += "<h2>This feature is for subscribers only.</h2>";
         return;
+      }
     }
+    console.log("Access granted:", twitchUser.display_name);
   }
 
   // --- Load toolbox images ---
@@ -102,15 +105,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadTwitchUser().then(loadImages);
 
-  async function checkIfFollower(userId) {
-    const res = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}&user_id=${userId}`, {
-      headers: {
-        "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
-        "Authorization": "Bearer " + token
+  async function checkIfSubscriber(userId) {
+    const res = await fetch(
+      `https://api.twitch.tv/helix/subscriptions/user?broadcaster_id=${broadcasterId}&user_id=${userId}`,
+      {
+        headers: {
+          "Client-ID": "xucm0e5wjyrw84pz7vx7l4rk4z0cho",
+          "Authorization": "Bearer " + token
+        }
       }
-    });
+    );
     const data = await res.json();
+    // If the array has 1 item, the user is subscribed
     return data.data && data.data.length > 0;
   }
-
 }); // End of DOMContentLoaded listener
