@@ -119,4 +119,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // If the array has 1 item, the user is subscribed
     return data.data && data.data.length > 0;
   }
+
+  async function clearMyItems() {
+    const snap = await db.ref("placements")
+      .orderByChild("user")
+      .equalTo(twitchUser.display_name)
+      .once("value");
+    const items = snap.val();
+    if (!items) return;
+    const updates = {};
+    Object.keys(items).forEach(key => {
+      updates[key] = null;
+    });
+    db.ref("placements").update(updates);
+  }
+
+  document.getElementById("clearMine").onclick = () => {
+    clearMyItems();
+  };
 }); // End of DOMContentLoaded listener
