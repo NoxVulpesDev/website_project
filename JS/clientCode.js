@@ -103,6 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
     preview.style.display = "block";
   }
 
+  document.addEventListener("mousemove", e => {
+    const preview = document.getElementById("preview");
+    if (preview.style.display !== "none") {
+      preview.style.left = e.pageX + 10 + "px";
+      preview.style.top = e.pageY + 10 + "px";
+    }
+  });
+
   document.addEventListener("click", e => {
     // Ignore clicks inside the toolbox
     const tool = document.getElementById("toolWindow");
