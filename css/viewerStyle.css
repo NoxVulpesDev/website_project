@@ -11,7 +11,8 @@ body {
 #toolWindow {
   position: fixed;
   top: 20px;
-  left: 20px;
+  right: 20px;
+  left: auto;
   width: 280px;
   height: 80vh;
   background: #18181b;
